@@ -1,0 +1,55 @@
+<script type="text/javascript">
+<!--
+function confirmRemove() {
+	if (!confirm("ユーザを削除します。\n削除すると元に戻すことはできませんが、よろしいですか？")) {
+		return;
+	}
+	goPage('edit_user', {cmd: 'remove'});
+}
+-->
+</script>
+
+<form name="menuForm" method="POST">
+<table class="list">
+	<tr>
+		<th>メールアドレス</th>
+		<td>
+			<input type="text" name="mail" value="<%= h user.mail %>" maxlength="255" size="50" <% if (cmd != "new") %> readonly class="readonly" <% end %>>
+		</td>
+	</tr>
+	<tr>
+		<th>パスワード</th>
+		<td>
+			<input type="password" name="pwd" value="" maxlength="255" size="50">
+		</td>
+	</tr>
+	<tr>
+		<th>メール送信曜日</th>
+		<td>
+			<input type="checkbox" name="send_day" value="Mon" <% if (user.is_send_day("Mon")) %>checked<% end%>>月
+			<input type="checkbox" name="send_day" value="Tue" <% if (user.is_send_day("Tue")) %>checked<% end%>>火
+			<input type="checkbox" name="send_day" value="Wed" <% if (user.is_send_day("Wed")) %>checked<% end%>>水
+			<input type="checkbox" name="send_day" value="Thu" <% if (user.is_send_day("Thu")) %>checked<% end%>>木
+			<input type="checkbox" name="send_day" value="Fri" <% if (user.is_send_day("Fri")) %>checked<% end%>>金
+			<input type="checkbox" name="send_day" value="Sat" <% if (user.is_send_day("Sat")) %>checked<% end%>><span style="color: blue">土</span>
+			<input type="checkbox" name="send_day" value="Sun" <% if (user.is_send_day("Sun")) %>checked<% end%>><span style="color: red">日</span>
+		</td>
+	</tr>
+	<tr>
+		<th>メール送信時刻</th>
+		<td>
+			<input type="text" name="send_time" value="<%= h user.send_time %>" maxlength="2" size="3"> 時
+			※24時間指定
+		</td>
+	</tr>
+</table>
+
+<ul class="btns">
+	<li><a href="javascript:goPage('edit_user', {cmd: '<%= h cmd_next %>'})">登録</a></li>
+	<% if (cmd != "new") %>
+		<li><a href="javascript:confirmRemove()">ユーザ削除</a></li>
+	<% end %>
+</ul>
+
+<input type="hidden" name="cmd">
+</form>

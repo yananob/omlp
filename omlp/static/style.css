@@ -1,0 +1,115 @@
+body, th, td {
+	font-size: 85%;
+}
+
+th {
+	background-color: DarkBlue;
+	color: WhiteSmoke;
+}
+
+h3 {
+	border-bottom: 1px black solid;
+	width: 70%;
+}
+
+/* table（一覧表示用）*/
+table.list {
+	border-collapse: collapse;
+	border: 1px gray solid;
+}
+
+table.list th, table.list td {
+	border: 1px gray solid;
+	padding: 3px;
+}
+
+table.list td {
+	background-color: white;
+}
+
+.readonly {
+	border: 0px;
+}
+
+div#system {
+	font-size: 80%;
+	font-weight: bold;
+	text-align: center;
+	color: darkblue;
+}
+
+div#title {
+	font-size: 130%;
+	font-weight: bold;
+	color: white;
+	/*
+	background-color: darkblue;
+	*/
+	padding: 0.3em;
+	background-image: url(/image/obi.png);
+	background-repeat: no-repeat;
+	background-position: left center;
+	height: 35px;
+}
+
+/* 参考: http://desperadoes.biz/style/dan/ */
+div#main {
+	margin: 0 auto;
+	width: 90%;
+	background-color: Gainsboro;
+	border-left: 1px gray solid;
+	border-top: 1px gray solid;
+	border-right: 1px black solid;
+	border-bottom: 1px black solid;
+}
+
+div#menu {
+	float: left;
+	width: 150px;
+	padding: 0.5em;
+}
+
+div#content {
+	margin-left: 150px;
+	padding: 0.5em;
+}
+
+div#footer {
+	margin-top: 1em;
+	text-align: center;
+	font-size: small;
+	color: #444444;
+}
+
+/* ボタン */
+ul.btns {
+	list-style: none;
+	margin: 0.2em;
+	padding: 0px;
+	line-height: 200%;
+}
+
+ul.btns li {
+	text-align: center;
+	font-weight: normal;
+	border: 1px darkblue outset;
+	width: 7em;
+	float:left;			/* 横に並べる */
+	white-space: nowrap;
+}
+ul.btns li a {
+	text-decoration: none;
+	display: block;
+	width: 100%;
+	background-color: #DDDDFF;
+	color: black;
+}
+
+ul.btns li a:hover {
+	background-color: darkblue;
+	color: white;
+}
+
+img.shot {
+	border: 1px black solid;
+}

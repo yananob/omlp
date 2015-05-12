@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<title>oml.nicher.jp</title>
+<style TYPE="text/css">
+<!--
+<%= css %>
+-->
+</style>
+</head>
+<body>
+アカウント <%= h oml_acc.memo %> [<%= h oml_acc.oml_id %>]の予約・貸し出し状況です。
+
+<h3>予約中</h3>
+<table class="list" border="1">
+	<tr>
+		<th>No.</th>
+		<th>書名</th>
+		<th>受付日付</th>
+		<th>書誌ID</th>
+		<th>状態</th>
+		<th>取置期限</th>
+	</tr>
+	<% log.books_resv.each_pair do |no, oml_book|
+		
+		if (oml_book.is_status_hold)
+			cell_style = "background-color: lightpink"
+		else
+			cell_style = ""
+		end
+	 %>
+		<tr>
+			<td style='<%= h cell_style %>'><%= h oml_book.no %></td>
+			<td style='<%= h cell_style %>'><%= h oml_book.book_name %></td>
+			<td style='<%= h cell_style %>'><%= h oml_book.reserved %></td>
+			<td style='<%= h cell_style %>'><%= h oml_book.book_id %></td>
+			<td style='<%= h cell_style %>'><%= h oml_book.status %></td>
+			<td style='<%= h cell_style %>'><%= h oml_book.hold_limit %>&nbsp;</td>
+		</tr>
+	<% end %>
+</table>
+<hr>
+<h3>貸し出し中</h3>
+<table class="list" border="1">
+	<tr>
+		<th>No.</th>
+		<th>書名</th>
+		<th>返却期限</th>
+		<th>資料コード</th>
+		<th>延長回数</th>
+		<th>延長日</th>
+		<th>予約有無</th>
+	</tr>
+	<% log.books_rent.each_pair do |no, oml_book|
+		
+		if (oml_book.exist_resv == "予約有り")
+			cell_style = "background-color: lightpink"
+		else
+			cell_style = ""
+		end
+	 %>
+		<tr>
+			<td><%= h oml_book.no %></td>
+			<td><%= h oml_book.book_name %></td>
+			<td><%= h oml_book.ret_limit %></td>
+			<td><%= h oml_book.book_id %></td>
+			<td><%= h oml_book.ext_cnt %></td>
+			<td><%= h oml_book.extended %>&nbsp;</td>
+			<td style='<%= h cell_style %>'><%= h oml_book.exist_resv %></td>
+		<tr>
+	<% end %>
+</table>
+<hr>
+<a href="http://nicher.s310.xrea.com/oml/">メール配信などの設定は、こちらからどうぞ。</a>
+</body>
+</html>

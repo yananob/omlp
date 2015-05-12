@@ -1,0 +1,53 @@
+{% extends "templates/base.jinja2" %}
+{% block page_title  %}Login{% endblock %}
+{% block inc_body %}
+<script type="text/javascript">
+<!--
+function tryThis() {
+	with (document.menuForm) {
+		mail.value = "oml_guest@nicher.jp";
+		pwd.value = "oml_guest";
+		goPage('menu', {cmd: 'login'});
+	}
+}
+// -->
+</script>
+
+<!--
+<p><a href="http://www.oml.city.osaka.jp/">大阪市立図書館</a>をより便利に使うためのツールです。</p>
+
+<ul>
+	<li>初めての方は、<a href="help.rb" target="_blank">ヘルプをご覧いただく</a>か、<a href="edit_user.rb?cmd=new">新規ユーザ登録</a>を行ってください。</li>
+	<li>試用する場合は、<a href="menu.rb?cmd=try">試用ボタン</a>を押してください。<br>
+	※試用ユーザでは、一部の操作がエラーになります。</li>
+</ul>
+-->
+
+<form name="menuForm" method="POST">
+
+<table class="list">
+	<tr>
+		<th>User ID (Mail Address)</th>
+		<td>
+			<input type="text" name="mail" value="" maxlength="255" size="20">
+		</td>
+	</tr>
+	<tr>
+		<th>Password</th>
+		<td>
+			<input type="password" name="pwd" value="" maxlength="255" size="20">
+		</td>
+	</tr>
+</table>
+<ul class="btns">
+	<li><a href="javascript:goPage('menu', {cmd: 'login'})">Login</a></li>
+<!--
+	<li><a href="edit_user.rb?cmd=new">新規ユーザ登録</a></li>
+	<li><a href="menu.rb?cmd=try">試用</a></li>
+-->
+</ul>
+
+<input type="hidden" name="cmd" value="">
+
+</form>
+{% endblock %}

@@ -1,0 +1,59 @@
+<script type="text/javascript">
+<!--
+function confirmRemove() {
+	if (!confirm("カード情報を削除します。\n削除すると元に戻すことはできませんが、よろしいですか？")) {
+		return;
+	}
+	goPage('edit_oml_acc', {cmd: 'remove'});
+}
+-->
+</script>
+</head>
+<body>
+<form name="menuForm" method="POST">
+<table class="list">
+	<tr>
+		<th>図書館カード番号</th>
+		<td colspan="10">
+			<input type="text" name="oml_id" value="<%= h oml_acc.oml_id %>" maxlength="9" size="15">
+		</td>
+	</tr>
+	<tr>
+		<th>図書館パスワード</th>
+		<td colspan="10">
+			<input type="text" name="oml_pwd" value="<%= h oml_acc.oml_pwd %>" maxlength="255" size="50">
+		</td>
+	</tr>
+	<tr>
+		<th>メモ</th>
+		<td colspan="10">
+			<input type="text" name="memo" value="<%= h oml_acc.memo %>" maxlength="255" size="50">
+			　※「誰々のカード」など
+		</td>
+	</tr>
+	<tr>
+		<th rowspan="2">暗号カード番号</th>
+		<% OmlAcc::PASS_KEYS.each do |key| %>
+			<th><%= h key %></th>
+		<% end %>
+	</tr>
+	<tr>
+		<% OmlAcc::PASS_KEYS.each do |key| %>
+			<td><input type="text" name="pass_key_<%= h key %>" value="<%= h oml_acc.pass_key[key] %>" maxlength="2" size="3"></td>
+		<% end %>
+	</tr>
+	</tr>
+</table>
+
+<ul class="btns">
+	<li><a href="javascript:goPage('edit_oml_acc', {cmd: '<%= h cmd_next %>'})">登録</a></li>
+	<% if (cmd != "new") %>
+		<li><a href="javascript:confirmRemove()">カード削除</a></li>
+	<% end %>
+</ul>
+
+<input type="hidden" name="cmd">
+<input type="hidden" name="seq" value="<%= h oml_acc.seq %>">
+</form>
+</body>
+</html>

@@ -1,0 +1,150 @@
+{% extends "templates/base.jinja2" %}
+{% block page_title  %}Menu{% endblock %}
+{% block inc_body %}
+
+<script type="text/javascript">
+<!--
+function confirmCancel(seq, no) {
+	if (!confirm("図書の予約を取り消します。\n取り消すと元に戻すことはできませんが、よろしいですか？")) {
+		return;
+	}
+	goPage('disp_log', {cmd: 'cancel_resv', seq: seq, no: no});
+}
+-->
+</script>
+
+Welcome, {{ omlp_user.email|e }}
+
+<h3>Registered Cards</h3>
+<table class="list">
+	<tr>
+		<th class="sp-off">Card Number</th>
+		<th>Memo</th>
+		<th>Reserved</th>
+		<th>(Holding)</th>
+		<th>Rent</th>
+		<th>(Limit)</th>
+		<th>Updated</th>
+		<th>Operation</th>
+	</tr>
+	
+	</tr>
+	{% for oml_acc in omlp_user.oml_accounts() %}
+		<tr>
+			<td class="sp-off">
+				{{ oml_acc.oml_id|e }}
+			</td>
+			<td>
+				{{ oml_acc.memo|e }}
+			</td>
+			<td align="right" style="{{ 'background-color: PaleTurquoise' if oml_acc.is_reservable() }}">
+				{{ oml_acc.reserved_books()|length|e }}
+			</td>
+
+            <!-- if oml_acc.log.books_hold_cnt > 0: -->
+			<td align="right" style="{{ 'background-color: lightpink' if oml_acc.is_holding_reserved() }}">
+				{{ oml_acc.reserved_books_holding_count()|e }}
+			</td>
+
+			<td align="right" style="{{ 'background-color: PaleTurquoise' if oml_acc.is_rentable() }}">
+				{{ oml_acc.rent_books()|length|e }}
+			</td>
+
+			<td align="right" style="{{ 'background-color: lightpink' if oml_acc.is_near_limit_rent() }}">
+				{{ oml_acc.rent_books_near_limit_count()|e }}
+			</td>
+			<td>
+				{{ oml_acc.crawled_datetime|e }}
+			</td>
+			<td nowrap>
+				<ul class="btns">
+					<li><a href="javascript:goPage('update_log', {cmd: 'refresh', seq: '{{ oml_acc.id|e }}'})">Update Log</a></li>
+					<li><a href="edit_oml_acc.rb?cmd=edit&seq={{ oml_acc.id|e }}">Edit</a></li>
+				</ul>
+			</td>
+		</tr>
+	{% endfor %}
+</table>
+
+
+<h3>Reserved Books</h3>
+<table class="list">
+	<tr>
+		<th class="sp-off">Memo</th>
+		<th class="sp-off">No</th>
+		<th>Book Name</th>
+		<th class="sp-off">Reserved Date</th>
+		<th>Status</th>
+		<th>Holding Limit</th>
+		<th>Operation</th>
+	</tr>
+    {% for oml_acc in omlp_user.oml_accounts() %}
+        {% for reserved_book in oml_acc.reserved_books() %}
+            <tr>
+                {% if loop.index0 == 0 %}
+                    <td class="sp-off" rowspan="{{ oml_acc.reserved_books()|length|e }}">{{ oml_acc.memo|e }}</td>
+                {% endif %}
+                <td style='' class="sp-off" align="right">{{ loop.index|e }}</td>
+                <td style=''>{{ reserved_book.book_name[:60]|e }}</td>
+                <td style='' class="sp-off">{{ reserved_book.reserved_date|e }}</td>
+                <td style='{{ 'background-color: lightpink' if reserved_book.is_holding() }}'>{{ reserved_book.status|e }}</td>
+                <td style=''>{{ reserved_book.hold_limit_date|e }}</td>
+                <td style=''>
+                    <ul class="btns">
+                        <li><a href="javascript:confirmCancel('{{ reserved_book.oml_acc_id|e }}', '{{ reserved_book.id|e }}')">Cancel Reservation</li>
+                    </ul>
+                </td>
+            </tr>
+	    {% endfor %}
+    {% endfor %}
+</table>
+<hr>
+
+
+<h3>Rent Books</h3>
+<table class="list">
+	<tr>
+		<th class="sp-off">Memo</th>
+		<th class="sp-off">No</th>
+		<th>Book Name</th>
+		<th class="sp-off">Limit</th>
+		<th class="sp-off">Extended Date</th>
+		<th>Reserved Date</th>
+		<th>Operation</th>
+	</tr>
+    {% for oml_acc in omlp_user.oml_accounts() %}
+        {% for rent_book in oml_acc.rent_books() %}
+            <tr>
+                {% if loop.index0 == 0 %}
+                    <td class="sp-off" rowspan="{{ oml_acc.rent_books()|length|e }}">{{ oml_acc.memo|e }}</td>
+                {% endif %}
+                <td class="sp-off" align="right">{{ loop.index|e }}</td>
+                <td>{{ rent_book.book_name[:60]|e }}</td>
+                <td class="sp-off">{{ rent_book.return_limit_date|e }}</td>
+                <td class="sp-off">{{ rent_book.extended_date|e }}</td>
+                <td style=''>{{ rent_book.reserved_date|e }}</td>
+                <td>
+                    {% if rent_book.is_extendable() %}
+                        <ul class="btns">
+                            <li><a href="javascript:goPage('disp_log', {cmd: 'extend', seq: '{{ rent_book.oml_acc_id|e }}', no: '{{ rent_book.id|e }}'})">Extend</li>
+                        </ul>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+	{% endfor %}
+</table>
+
+
+
+<ul class="btns">
+	<li><a href="javascript:goPage('edit_oml_acc', {cmd: 'new'})">Add Card</a></li>
+</ul>
+
+<form name="menuForm" action="" method="POST">
+	<input type="hidden" name="cmd">
+	<input type="hidden" name="seq">
+	<input type="hidden" name="no">
+</form>
+
+{% endblock %}

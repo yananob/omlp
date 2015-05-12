@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="ja-JP">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="Content-Script-Type" content="text/javascript; charset=UTF-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<title>Word of the Day (<%= user %>) - nicher.jp</title>
+	<style type="text/css">
+	span#wod_body {
+		font-size: 82%;
+		line-height: 1.2em;
+	}
+	
+	div#wod_word {
+		background-color: aliceblue;
+		color: black;
+		padding: 0.5em;
+		border: 1px gray solid;
+	}
+	
+	span#wod_person {
+		text-align: right;;
+	}
+	
+	span#wod_source {
+		margin-left: 0.5em;
+	}
+	</style>
+	<% if (css_inc) %>
+		<link rel="stylesheet" href="<%= css_inc %>" type="text/css">
+	<% end %>
+</head>
+<body>
+<!-- provided by nicher.jp http://blog.nicher.jp/20071019.html -->
+<span id="wod_body">
+	<div id="wod_word"><%= h word %></div>
+	<span id="wod_person"><%= h person %></span>
+	<span id="wod_source">
+		<% if (source_link) %>
+			<% if (source) %>
+				<a href="<%= source_link %>" target="_blank"><%= h source %></a>
+			<% else %>
+				<a href="<%= source_link %>" target="_blank">É\Å[ÉX</a>
+			<% end %>
+		<% else %>
+			<%= h source %>
+		<% end %>
+	</span>
+</span>
+</body>
+</html>
