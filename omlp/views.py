@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import and_
@@ -18,6 +19,7 @@ def view_login(request):
 
 @view_config(route_name='menu', renderer='templates/menu.jinja2')
 def view_menu(request):
+    # TODO; ビューではモデル操作のみにして、DB操作はしないほうがよさげだが
     omlp_user = DBSession.query(OmlpUser).filter(OmlpUser.id == DEBUG_USERID).one()
 
     return {'omlp_user': omlp_user}

@@ -108,8 +108,8 @@ Welcome, {{ omlp_user.email|e }}
 		<th class="sp-off">No</th>
 		<th>Book Name</th>
 		<th class="sp-off">Limit</th>
-		<th class="sp-off">Extended Date</th>
-		<th>Reserved Date</th>
+		<th class="sp-off">Is Extended</th>
+		<th>Is Reserved</th>
 		<th>Operation</th>
 	</tr>
     {% for oml_acc in omlp_user.oml_accounts() %}
@@ -120,9 +120,9 @@ Welcome, {{ omlp_user.email|e }}
                 {% endif %}
                 <td class="sp-off" align="right">{{ loop.index|e }}</td>
                 <td>{{ rent_book.book_name[:60]|e }}</td>
-                <td class="sp-off">{{ rent_book.return_limit_date|e }}</td>
-                <td class="sp-off">{{ rent_book.extended_date|e }}</td>
-                <td style=''>{{ rent_book.reserved_date|e }}</td>
+                <td class="sp-off">{{ rent_book.return_limit_date.date }}</td>
+                <td class="sp-off">{{ "Y" if rent_book.is_extended }}</td>
+                <td style=''>{{ "Y" if rent_book.is_reservation_exist }}</td>
                 <td>
                     {% if rent_book.is_extendable() %}
                         <ul class="btns">

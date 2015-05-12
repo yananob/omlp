@@ -11,6 +11,8 @@ def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
     engine = engine_from_config(settings, 'sqlalchemy.')
+    # http://stackoverflow.com/questions/3033741/sqlalchemy-automatically-converts-str-to-unicode-on-commit
+    engine.connect().connection.connection.text_factory = str
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
 

@@ -9,7 +9,7 @@ from sqlalchemy import (
     Text,
     DateTime,
     Boolean,
-    and_)
+    and_, create_engine, engine_from_config)
 from sqlalchemy.exc import DBAPIError
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -19,13 +19,19 @@ from sqlalchemy.orm import (
     sessionmaker,
     )
 
-#from zope.sqlalchemy import ZopeTransactionExtension
+from zope.sqlalchemy import ZopeTransactionExtension
 
 # 自動生成。Transaction must be commited by transaction manager のエラーになるため、修正
-#DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
-DBSession = scoped_session(sessionmaker())
+
+DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
+#DBSession = scoped_session(sessionmaker())
 Base = declarative_base()
 
+# engine = engine_from_config(settings, 'sqlalchemy.')
+# # http://stackoverflow.com/questions/3033741/sqlalchemy-automatically-converts-str-to-unicode-on-commit
+# engine.connect().connection.connection.text_factory = str
+# DBSession.configure(bind=engine)
+# Base.metadata.bind = engine
 
 
 # class MyModel(Base):
@@ -85,11 +91,11 @@ class OmlAccount(Base):
 
     def rent_books(self):
         # TODO: 毎回取得を避ける
-        return DBSession.query(RentBook).filter(RentBook.oml_acc_id == self.id).all()
+        return DBSession.query(RentBook).filter(RentBook.oml_acc_id == self.oml_id).all()
 
     def reserved_books(self):
         # TODO: 毎回取得を避ける
-        return DBSession.query(ReservedBook).filter(ReservedBook.oml_acc_id == self.id).all()
+        return DBSession.query(ReservedBook).filter(ReservedBook.oml_acc_id == self.oml_id).all()
 
     def is_reservable(self):
         return len(self.reserved_books()) < 8
@@ -114,6 +120,8 @@ class OmlAccount(Base):
                                                      RentBook.return_limit_date < date.today() + timedelta(days=2))).count()
 
     def update_log(self):
+        self.delete_log()
+
         from omlp.oml_crawler import OmlCrawler
 
         crawler = OmlCrawler(str(self.oml_id), str(self.oml_password))
@@ -124,15 +132,13 @@ class OmlAccount(Base):
 
         self.save_log(books_reserved, books_rent)
 
+    def delete_log(self):
+        DBSession.query(RentBook).filter(RentBook.oml_acc_id == self.oml_id).delete(synchronize_session=False)
+        DBSession.query(ReservedBook).filter(ReservedBook.oml_acc_id == self.oml_id).delete(synchronize_session=False)
+
     def save_log(self, books_reserved, books_rent):
         for rent_book in books_rent:
-            print "RENT_BOOK:", rent_book.book_name
-
             DBSession.add(rent_book)
-
-            # TODO: exceptionでRollback ?
-
-        DBSession.commit()
 
 #	attr_reader :mail, :seq, :oml_id, :oml_pwd, :memo, :crawled, :pass_key
 #	attr_writer :crawled
