@@ -21,29 +21,17 @@ from sqlalchemy.orm import (
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
-# 自動生成。Transaction must be commited by transaction manager のエラーになるため、修正
 
+# Constants
+STATUS_HOLDING = 2
+
+MAX_RENTABLE_BOOKS = 15
+MAX_RESERVABLE_BOOKS = 8
+
+# Variables
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
-#DBSession = scoped_session(sessionmaker())
 Base = declarative_base()
 
-# engine = engine_from_config(settings, 'sqlalchemy.')
-# # http://stackoverflow.com/questions/3033741/sqlalchemy-automatically-converts-str-to-unicode-on-commit
-# engine.connect().connection.connection.text_factory = str
-# DBSession.configure(bind=engine)
-# Base.metadata.bind = engine
-
-
-# class MyModel(Base):
-#     __tablename__ = 'models'
-#     id = Column(Integer, primary_key=True)
-#     name = Column(Text)
-#     value = Column(Integer)
-#
-# Index('my_index', MyModel.name, unique=True, mysql_length=255)
-
-
-STATUS_HOLDING = 2
 
 # class Book(Base):
 #     id = Column(Integer, primary_key=True)
@@ -57,12 +45,19 @@ class RentBook(Base):
     book_name = Column(Text)
     book_id = Column(Text)
     return_limit_date = Column(DateTime)
-    is_extended = Column(Boolean)
-    is_reservation_exist = Column(Boolean)
+    status = Column(Text)
+
+    def is_extended(self):
+        return u"延長済" in self.status
+
+    def is_reservation_exist(self):
+        return u"次予約有" in self.status
 
     def is_extendable(self):
         return self.is_reservation_exist == False
 
+    def is_limit_over(self):
+        return u"延滞" in self.status
 
 class ReservedBook(Base):
     __tablename__ = 'reserved_books'
@@ -70,13 +65,11 @@ class ReservedBook(Base):
     oml_acc_id = Column(Integer)
     book_name = Column(Text)
     book_id = Column(Text)
-    reserved_date = Column(DateTime)
-    reserved_no = Column(Integer)
-    status = Column(Integer)
     hold_limit_date = Column(DateTime)
+    status = Column(Text)
 
     def is_holding(self):
-        return self.status == STATUS_HOLDING
+        return u"取置中" in self.status
 
 
 class OmlAccount(Base):
@@ -98,32 +91,39 @@ class OmlAccount(Base):
         return DBSession.query(ReservedBook).filter(ReservedBook.oml_acc_id == self.oml_id).all()
 
     def is_reservable(self):
-        return len(self.reserved_books()) < 8
+        return len(self.reserved_books()) < MAX_RESERVABLE_BOOKS
 
     def is_holding_reserved(self):
         return self.reserved_books_holding_count() > 0
 
     def reserved_books_holding_count(self):
-        # TODO: 毎回取得を避ける。ReservedBookのメソッドに変える
-        return DBSession.query(ReservedBook).filter(and_(ReservedBook.oml_acc_id == self.id,
-                                                         ReservedBook.status == STATUS_HOLDING)).count()
+        count = 0
+
+        for book in self.reserved_books():
+            if book.is_holding():
+                count += 1
+
+        return count
 
     def is_rentable(self):
-        return len(self.rent_books()) < 15
+        return len(self.rent_books()) < MAX_RENTABLE_BOOKS
 
     def is_near_limit_rent(self):
-        return self.rent_books_near_limit_count() > 0
+        return self.rent_books_over_limit_count() > 0
 
-    def rent_books_near_limit_count(self):
-        # TODO: 毎回取得を避ける
-        return DBSession.query(RentBook).filter(and_(RentBook.oml_acc_id == self.id,
-                                                     RentBook.return_limit_date < date.today() + timedelta(days=2))).count()
+    def rent_books_over_limit_count(self):
+        count = 0
+
+        for book in self.rent_books():
+            if book.is_limit_over():
+                count += 1
+
+        return count
 
     def update_log(self):
         self.delete_log()
 
         from omlp.oml_crawler import OmlCrawler
-
         crawler = OmlCrawler(str(self.oml_id), str(self.oml_password))
         crawler.login()
         # List of Column Object
@@ -137,11 +137,10 @@ class OmlAccount(Base):
         DBSession.query(ReservedBook).filter(ReservedBook.oml_acc_id == self.oml_id).delete(synchronize_session=False)
 
     def save_log(self, books_reserved, books_rent):
-        for rent_book in books_rent:
-            DBSession.add(rent_book)
-
-#	attr_reader :mail, :seq, :oml_id, :oml_pwd, :memo, :crawled, :pass_key
-#	attr_writer :crawled
+        for book in books_rent:
+            DBSession.add(book)
+        for book in books_reserved:
+            DBSession.add(book)
 
 
 class OmlpUser(Base):

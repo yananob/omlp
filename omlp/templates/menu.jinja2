@@ -51,7 +51,7 @@ Welcome, {{ omlp_user.email|e }}
 			</td>
 
 			<td align="right" style="{{ 'background-color: lightpink' if oml_acc.is_near_limit_rent() }}">
-				{{ oml_acc.rent_books_near_limit_count()|e }}
+				{{ oml_acc.rent_books_over_limit_count()|e }}
 			</td>
 			<td>
 				{{ oml_acc.crawled_datetime|e }}
@@ -73,7 +73,6 @@ Welcome, {{ omlp_user.email|e }}
 		<th class="sp-off">Memo</th>
 		<th class="sp-off">No</th>
 		<th>Book Name</th>
-		<th class="sp-off">Reserved Date</th>
 		<th>Status</th>
 		<th>Holding Limit</th>
 		<th>Operation</th>
@@ -86,12 +85,11 @@ Welcome, {{ omlp_user.email|e }}
                 {% endif %}
                 <td style='' class="sp-off" align="right">{{ loop.index|e }}</td>
                 <td style=''>{{ reserved_book.book_name[:60]|e }}</td>
-                <td style='' class="sp-off">{{ reserved_book.reserved_date|e }}</td>
-                <td style='{{ 'background-color: lightpink' if reserved_book.is_holding() }}'>{{ reserved_book.status|e }}</td>
-                <td style=''>{{ reserved_book.hold_limit_date|e }}</td>
-                <td style=''>
+                <td align="center" style='{{ 'background-color: lightpink' if reserved_book.is_holding() }}'>{{ reserved_book.status|e }}</td>
+                <td align="center" >{{ reserved_book.hold_limit_date.strftime("%Y/%m/%d") if reserved_book.is_holding() }}</td>
+                <td>
                     <ul class="btns">
-                        <li><a href="javascript:confirmCancel('{{ reserved_book.oml_acc_id|e }}', '{{ reserved_book.id|e }}')">Cancel Reservation</li>
+                        <li><a href="javascript:confirmCancel('{{ reserved_book.oml_acc_id|e }}', '{{ reserved_book.id|e }}')">Cancel</li>
                     </ul>
                 </td>
             </tr>
@@ -107,9 +105,8 @@ Welcome, {{ omlp_user.email|e }}
 		<th class="sp-off">Memo</th>
 		<th class="sp-off">No</th>
 		<th>Book Name</th>
-		<th class="sp-off">Limit</th>
-		<th class="sp-off">Is Extended</th>
-		<th>Is Reserved</th>
+		<th class="sp-off">Rent Limit</th>
+		<th class="sp-off">Status</th>
 		<th>Operation</th>
 	</tr>
     {% for oml_acc in omlp_user.oml_accounts() %}
@@ -120,9 +117,8 @@ Welcome, {{ omlp_user.email|e }}
                 {% endif %}
                 <td class="sp-off" align="right">{{ loop.index|e }}</td>
                 <td>{{ rent_book.book_name[:60]|e }}</td>
-                <td class="sp-off">{{ rent_book.return_limit_date.date }}</td>
-                <td class="sp-off">{{ "Y" if rent_book.is_extended }}</td>
-                <td style=''>{{ "Y" if rent_book.is_reservation_exist }}</td>
+                <td align="center" class="sp-off">{{ rent_book.return_limit_date.strftime("%Y/%m/%d") }}</td>
+                <td align="center" style='{{ 'background-color: lightpink' if rent_book.is_limit_over() }}'>{{ rent_book.status }}</td>
                 <td>
                     {% if rent_book.is_extendable() %}
                         <ul class="btns">
