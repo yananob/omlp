@@ -152,3 +152,5 @@ class OmlpUser(Base):
         return DBSession.query(OmlAccount).filter(OmlAccount.omlp_id == self.id).all()
 
     #    :send_day, :send_time, :is_exist
+
+# TODO: omlp.sqliteのGit履歴を消す・・・gihtubに載ってしまう
